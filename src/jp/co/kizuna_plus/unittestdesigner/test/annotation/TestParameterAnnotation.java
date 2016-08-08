@@ -31,6 +31,12 @@ public @interface TestParameterAnnotation {
 	String listDelimiter() default "";
 	
 	/**
+	 * 値はListで生成する。
+	 * falseの場合は、配列として扱う。
+	 */
+	boolean isList() default true;
+	
+	/**
 	 * 値タイプ
 	 */
 	TestParameterTypeEnum type() default TestParameterTypeEnum.NULL;

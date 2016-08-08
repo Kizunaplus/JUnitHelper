@@ -34,4 +34,9 @@ public enum TestParameterTypeEnum {
 	 * null値
 	 */
 	NULL,
+	
+	/**
+	 * class値
+	 */
+	TYPE,
 }

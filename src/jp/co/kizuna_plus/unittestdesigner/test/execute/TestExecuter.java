@@ -119,6 +119,7 @@ public class TestExecuter {
 	 * @param parametersAnnotation
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	private static List<Object> convert2ParamList(TestParametersAnnotation parametersAnnotation) {
 		List<Object> paramList = new ArrayList<Object>();
 
@@ -129,7 +130,12 @@ public class TestExecuter {
 				TestParameterTypeEnum type = paramAnotation.type();
 				String listDelimiter = paramAnotation.listDelimiter();
 
-				paramList.add(convert2Param(value, clazz, type, listDelimiter));
+				Object obj = convert2Param(value, clazz, type, listDelimiter);
+				if (!"".equals(listDelimiter)) {
+					obj = ((List<Object>) obj).toArray();
+				}
+				
+				paramList.add(obj);
 			}
 		}
 
@@ -212,6 +218,9 @@ public class TestExecuter {
 			} catch (Exception ex) {
 
 			}
+		} else if (type == TestParameterTypeEnum.TYPE) {
+			// Class型値
+			paramValue = clazz;
 		} else if (type == TestParameterTypeEnum.NULL) {
 			// NULL値
 			paramValue = null;
@@ -257,7 +266,7 @@ public class TestExecuter {
 			// Boolean
 			retValue = Boolean.parseBoolean(value);
 		} else if (Class.class.isAssignableFrom(clazz)) {
-			// Boolean
+			// Class
 			try {
 				retValue = Class.forName(value);
 			} catch (ClassNotFoundException e) {
