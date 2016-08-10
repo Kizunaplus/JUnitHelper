@@ -129,4 +129,13 @@ public class DemoTestTargetTest {
 		TestExecuter.execute(this.target, this);
 	}
 
+
+	@Test
+	@TestTargetAnnotation(targetClass=DemoTestTarget.class, targetMethod="isNullOrEmpty", methodParameters={String[].class})
+	@TestParametersAnnotation(value={@TestParameterAnnotation(value="1111,nnnn", isList=false, listDelimiter=",", type=TestParameterTypeEnum.VALUE, parameterClass=String[].class)})
+	@TestAssertAnnotation(value="false", type=TestParameterTypeEnum.VALUE, valueClass=Boolean.class)
+	public void testIsNullOrEmpty_001() {
+		TestExecuter.execute(this.target, this);
+	}
+
 }

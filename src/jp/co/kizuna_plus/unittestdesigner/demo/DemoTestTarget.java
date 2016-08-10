@@ -40,4 +40,14 @@ public class DemoTestTarget {
 	public TestParameterTypeEnum getEnum(TestParameterTypeEnum argEnum) {
 		return argEnum;
 	}
+	
+	/**
+	 * Nullまたは、空欄かチェックします。
+	 * 
+	 * @param array 配列
+	 * @return true NULLか空欄, false それ以外
+	 */
+	public boolean isNullOrEmpty(String[] array) {
+		return array == null || array.length <= 0;
+	}
 }

@@ -1,10 +1,12 @@
 package jp.co.kizuna_plus.unittestdesigner.test.execute;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -103,7 +105,11 @@ public class TestExecuter {
 			performAnnotationTypeAssert(assertAnnotation, retVal, args);
 		} catch (Exception e) {
 			try {
-				performAnnotationTypeAssert(assertAnnotation, e, args);
+				if (e.getCause() != null) {
+					performAnnotationTypeAssert(assertAnnotation, e.getCause(), args);
+				} else {
+					performAnnotationTypeAssert(assertAnnotation, e, args);					
+				}
 			} catch (Throwable e1) {
 				e.printStackTrace();
 				throw e1;
@@ -131,8 +137,8 @@ public class TestExecuter {
 				String listDelimiter = paramAnotation.listDelimiter();
 
 				Object obj = convert2Param(value, clazz, type, listDelimiter);
-				if (!"".equals(listDelimiter)) {
-					obj = ((List<Object>) obj).toArray();
+				if (!"".equals(listDelimiter) && paramAnotation.isList()) {
+					obj = Arrays.asList((Object[])obj);
 				}
 				
 				paramList.add(obj);
@@ -170,7 +176,7 @@ public class TestExecuter {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	private static Object convert2Param(String value, Class<?> clazz, TestParameterTypeEnum type,
+	public static Object convert2Param(String value, Class<?> clazz, TestParameterTypeEnum type,
 			String listDelimiter) {
 		Object paramValue = null;
 
@@ -179,12 +185,13 @@ public class TestExecuter {
 			if (!"".equals(listDelimiter)) {
 				// デリミターが設定されている場合
 				String[] values = value.split(listDelimiter);
-				List<Object> paramValues = new ArrayList<>();
-				for (String val : values) {
+				Object[] paramValues = createArrayOfType(clazz, values.length);
+				for (int valIndex = 0; valIndex < values.length; valIndex++) {
+					String val = values[valIndex];
 					if ("null".equals(val)) {
 						val = null;
 					}
-					paramValues.add(convert2ParamValue(val, clazz));
+					paramValues[valIndex] = convert2ParamValue(val, clazz.getComponentType());
 				}
 				paramValue = paramValues;
 			} else {
@@ -236,7 +243,7 @@ public class TestExecuter {
 	 *            パラメータアノテーション
 	 * @return 値
 	 */
-	private static Object convert2ParamValue(String value, Class<?> clazz) {
+	private static <T> T convert2ParamValue(String value, Class<T> clazz) {
 
 		if (value == null) {
 			// 値がnullの場合は常にnullを設定
@@ -287,7 +294,26 @@ public class TestExecuter {
 
 		}
 
-		return retValue;
+		return (T)retValue;
+	}
+	
+	/**
+	 * 指定classのList型を取得します。
+	 * @param type
+	 * @return
+	 */
+	public static <T> List<T> createListOfType(T type) {
+	    return new ArrayList<T>();
+	}
+	
+	/**
+	 * 指定classのList型を取得します。
+	 * @param <T>
+	 * @param type
+	 * @return
+	 */
+	public static <T> T[] createArrayOfType(Class<T> type, int size) {
+	    return (T[]) Array.newInstance(type.getComponentType(), size); 
 	}
 
 	/**
@@ -397,5 +423,25 @@ public class TestExecuter {
 		Object obj = convert2Param(annotation);
 
 		Assert.assertNotSame(obj, ((Collection<?>) actual).size());
+	}
+	
+
+	/**
+	 * インスタンスの比較<br>
+	 * 一致することを確認
+	 * 
+	 * @param annotation
+	 * @param actual
+	 * @param args
+	 */
+	public static void assertExceptionMessage(TestAssertAnnotation annotation, Object actual, List<Object> args) {
+		Object obj = convert2Param(annotation);
+		
+		if (!(actual  instanceof Throwable)) {
+			Assert.fail("does not throwable object : " + actual.toString());
+		}
+		Throwable actualThrowable = (Throwable)actual;
+
+		Assert.assertEquals(obj, actualThrowable.getMessage());
 	}
 }
