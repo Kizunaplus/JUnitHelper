@@ -6,6 +6,11 @@ import java.util.Map;
 public class TestCaseSettings implements Serializable {
 	
 	/**
+	 * Serial Version id
+	 */
+	private static final long serialVersionUID = -1306461101587401357L;
+
+	/**
 	 * 対象とするパッケージ
 	 */
 	private String[] packages;

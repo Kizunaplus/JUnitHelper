@@ -3,7 +3,6 @@ package jp.co.kizuna_plus.unittestdesigner.test.execute;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -66,6 +65,7 @@ public class TestExecuter {
 			callMethod.setAccessible(true);
 		} catch (Exception ex) {
 			// 呼び出し元のクラスが取得できない場合
+			ex.printStackTrace();
 			Assert.fail();
 		}
 
@@ -82,8 +82,7 @@ public class TestExecuter {
 				Method setupMethod = callClass.getDeclaredMethod(setupAnnotation.value(), List.class);
 				setupMethod.setAccessible(true);
 				setupMethod.invoke(callInstance, args);
-			} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
-					| InvocationTargetException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 				Assert.fail();
 			}
@@ -125,7 +124,6 @@ public class TestExecuter {
 	 * @param parametersAnnotation
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	private static List<Object> convert2ParamList(TestParametersAnnotation parametersAnnotation) {
 		List<Object> paramList = new ArrayList<Object>();
 
@@ -154,7 +152,7 @@ public class TestExecuter {
 	 * @param parameterAnnotation
 	 * @return
 	 */
-	private static Object convert2Param(TestAssertAnnotation parameterAnnotation) {
+	public static Object convert2Param(TestAssertAnnotation parameterAnnotation) {
 		Object paramValue = null;
 
 		if (parameterAnnotation != null) {
@@ -207,7 +205,8 @@ public class TestExecuter {
 				field.setAccessible(true);
 				paramValue = field.get(null);
 			} catch (Exception ex) {
-
+				ex.printStackTrace();
+				Assert.fail();
 			}
 		} else if (type == TestParameterTypeEnum.NON_PARAM_STATIC_METHOD) {
 			// Static メソッド
@@ -216,14 +215,16 @@ public class TestExecuter {
 				method.setAccessible(true);
 				paramValue = method.invoke(null, new Object[0]);
 			} catch (Exception ex) {
-
+				ex.printStackTrace();
+				Assert.fail();
 			}
 		} else if (type == TestParameterTypeEnum.DEFAULT_CONSTRUCTOR) {
 			// デフォルトコンストラクタ
 			try {
 				paramValue = clazz.newInstance();
 			} catch (Exception ex) {
-
+				ex.printStackTrace();
+				Assert.fail();
 			}
 		} else if (type == TestParameterTypeEnum.TYPE) {
 			// Class型値
@@ -243,6 +244,7 @@ public class TestExecuter {
 	 *            パラメータアノテーション
 	 * @return 値
 	 */
+	@SuppressWarnings("unchecked")
 	private static <T> T convert2ParamValue(String value, Class<T> clazz) {
 
 		if (value == null) {
@@ -290,6 +292,8 @@ public class TestExecuter {
 				retValue = constructor.newInstance(value);
 
 			} catch (Exception e) {
+				e.printStackTrace();
+				Assert.fail();
 			}
 
 		}
@@ -312,6 +316,7 @@ public class TestExecuter {
 	 * @param type
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public static <T> T[] createArrayOfType(Class<T> type, int size) {
 	    return (T[]) Array.newInstance(type.getComponentType(), size); 
 	}
@@ -338,6 +343,8 @@ public class TestExecuter {
 			if (e.getCause() instanceof AssertionError) {
 				throw (AssertionError) e.getCause();
 			}
+			e.printStackTrace();
+			Assert.fail();
 		}
 	}
 
