@@ -7,7 +7,12 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Deque;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
+import java.util.UUID;
 
 import org.junit.Assert;
 
@@ -23,6 +28,11 @@ import jp.co.kizuna_plus.unittestdesigner.test.annotation.TestTargetAnnotation;
  * 
  */
 public class TestExecuter {
+	
+	/**
+	 * 乱数発生器
+	 */
+	private static Random random = new Random();
 
 	/**
 	 * テスト実行<br>
@@ -195,6 +205,23 @@ public class TestExecuter {
 			} else {
 				paramValue = convert2ParamValue(value, clazz);
 			}
+		} else if (type == TestParameterTypeEnum.GENERATE_VALUE) {
+			// 直値
+			if (!"".equals(listDelimiter)) {
+				// デリミターが設定されている場合
+				String[] values = value.split(listDelimiter);
+				Object[] paramValues = createArrayOfType(clazz, values.length);
+				for (int valIndex = 0; valIndex < values.length; valIndex++) {
+					String val = values[valIndex];
+					if ("null".equals(val)) {
+						val = null;
+					}
+					paramValues[valIndex] = generateParamValue(clazz.getComponentType());
+				}
+				paramValue = paramValues;
+			} else {
+				paramValue = generateParamValue(clazz);
+			}
 		} else if (type == TestParameterTypeEnum.ENUM) {
 			// Enum
 			paramValue = Enum.valueOf((Class<Enum>) clazz, value);
@@ -298,6 +325,47 @@ public class TestExecuter {
 
 		}
 
+		return (T)retValue;
+	}
+	
+
+	/**
+	 * 変換が可能な形の場合に値として使用します。
+	 * 
+	 * @param paramAnotation
+	 *            パラメータアノテーション
+	 * @return 値
+	 */
+	@SuppressWarnings("unchecked")
+	private static <T> T generateParamValue(Class<T> clazz) {
+
+		Object retValue = null;
+		if (Integer.class.isAssignableFrom(clazz)) {
+			// Integer
+			retValue = random.nextInt();
+		} else if (Long.class.isAssignableFrom(clazz)) {
+			// Long
+			retValue = random.nextLong();
+		} else if (Byte.class.isAssignableFrom(clazz)) {
+			// Byte
+			retValue = (byte)random.nextInt();
+		} else if (Short.class.isAssignableFrom(clazz)) {
+			// Short
+			retValue = (short)random.nextInt();
+		} else if (Float.class.isAssignableFrom(clazz)) {
+			// Float
+			retValue = random.nextFloat();
+		} else if (Double.class.isAssignableFrom(clazz)) {
+			// Double
+			retValue = random.nextDouble();
+		} else if (Boolean.class.isAssignableFrom(clazz)) {
+			// Boolean
+			retValue = random.nextBoolean();
+		} else {
+			// 文字列または、形の指定がない場合
+			retValue = UUID.randomUUID().toString().replace("-", "").substring(random.nextInt(31) + 1);
+		}
+		
 		return (T)retValue;
 	}
 	
@@ -414,8 +482,15 @@ public class TestExecuter {
 	 */
 	public static void assertSize(TestAssertAnnotation annotation, Object actual, List<Object> args) {
 		Object obj = convert2Param(annotation);
+		
+		int actualSize = 0;
+		if (actual instanceof Collection) {
+			actualSize = ((Collection<?>) actual).size();
+		} else if (actual instanceof Map) {
+			actualSize = ((Map<?,?>) actual).size();
+		}
 
-		Assert.assertEquals(obj, ((Collection<?>) actual).size());
+		Assert.assertEquals(obj, actualSize);
 	}
 
 	/**
@@ -429,7 +504,15 @@ public class TestExecuter {
 	public static void assertNotSize(TestAssertAnnotation annotation, Object actual, List<Object> args) {
 		Object obj = convert2Param(annotation);
 
-		Assert.assertNotSame(obj, ((Collection<?>) actual).size());
+
+		int actualSize = 0;
+		if (actual instanceof Collection) {
+			actualSize = ((Collection<?>) actual).size();
+		} else if (actual instanceof Map) {
+			actualSize = ((Map<?,?>) actual).size();
+		}
+
+		Assert.assertNotSame(obj, actualSize);
 	}
 	
 

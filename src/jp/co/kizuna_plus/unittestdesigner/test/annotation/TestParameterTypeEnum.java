@@ -39,4 +39,10 @@ public enum TestParameterTypeEnum {
 	 * class値
 	 */
 	TYPE,
+	
+	/**
+	 * 値生成
+	 */
+	GENERATE_VALUE,
+
 }

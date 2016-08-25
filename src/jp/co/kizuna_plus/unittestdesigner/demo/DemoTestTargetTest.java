@@ -114,8 +114,8 @@ public class DemoTestTargetTest {
 
 	@Test
 	@TestTargetAnnotation(targetClass=DemoTestTarget.class, targetMethod="getEnum", methodParameters={TestParameterTypeEnum.class})
-	@TestParametersAnnotation(value={@TestParameterAnnotation(value="VALUE", type=TestParameterTypeEnum.VALUE, parameterClass=TestParameterTypeEnum.class)})
-	@TestAssertAnnotation(value="VALUE", type=TestParameterTypeEnum.VALUE, valueClass=TestParameterTypeEnum.class)
+	@TestParametersAnnotation(value={@TestParameterAnnotation(value="VALUE", type=TestParameterTypeEnum.ENUM, parameterClass=TestParameterTypeEnum.class)})
+	@TestAssertAnnotation(value="VALUE", type=TestParameterTypeEnum.ENUM, valueClass=TestParameterTypeEnum.class)
 	public void testGetEnum_001() {
 		TestExecuter.execute(this.target, this);
 	}
@@ -123,8 +123,8 @@ public class DemoTestTargetTest {
 
 	@Test
 	@TestTargetAnnotation(targetClass=DemoTestTarget.class, targetMethod="getEnum", methodParameters={TestParameterTypeEnum.class})
-	@TestParametersAnnotation(value={@TestParameterAnnotation(value="NULL", type=TestParameterTypeEnum.VALUE, parameterClass=TestParameterTypeEnum.class)})
-	@TestAssertAnnotation(value="NULL", type=TestParameterTypeEnum.VALUE, valueClass=TestParameterTypeEnum.class)
+	@TestParametersAnnotation(value={@TestParameterAnnotation(value="NULL", type=TestParameterTypeEnum.ENUM, parameterClass=TestParameterTypeEnum.class)})
+	@TestAssertAnnotation(value="NULL", type=TestParameterTypeEnum.ENUM, valueClass=TestParameterTypeEnum.class)
 	public void testGetEnum_002() {
 		TestExecuter.execute(this.target, this);
 	}
